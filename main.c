@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include "slip.h"
 #include "serialtype.h"
-#include "serial_linux.h"
+#include "serial_unix.h"
 #include "elclient.h"
 #include "elproto.h"
 
@@ -25,7 +25,7 @@ typedef struct __attribute__((packed))
 } elproto_arg_t;
 
 
-serial_if_cfg_t linux_serial_if_cfg = 
+serial_if_cfg_t unix_serial_if_cfg = 
 {
     .chardev  = "/dev/ttyUSB0",
     .baudrate = 115200,
@@ -35,13 +35,13 @@ serial_if_cfg_t linux_serial_if_cfg =
     .bytesize = 1
 };
 
-serial_if_t linux_serial_if =
+serial_if_t unix_serial_if =
 {
-    .p_cfg       = &linux_serial_if_cfg,
-    .init        = serial_linux_init,
-    .putb        = serial_linux_putb,
-    .getb        = serial_linux_getb,
-    .bytes_available = serial_linux_bytes_available,
+    .p_cfg       = &unix_serial_if_cfg,
+    .init        = serial_unix_init,
+    .putb        = serial_unix_putb,
+    .getb        = serial_unix_getb,
+    .bytes_available = serial_unix_bytes_available,
 };
 
 void my_elclient_common_cb(void * p_param, uint16_t args_size)
@@ -93,7 +93,11 @@ int main(void)
     elclient_register_cb(ELCLIENT_CB_ID_COMMON, my_elclient_common_cb);
     elclient_register_cb(ELCLIENT_CB_ID_REST,   my_elclient_common_cb);
 
-    slip_init(&linux_serial_if);
+    if (slip_init(&unix_serial_if) < 0)
+    {
+        fprintf(stderr, "slip init failed\n");
+        return -1;
+    }
     
     if (elclient_sync())
     {
