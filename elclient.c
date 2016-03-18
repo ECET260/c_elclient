@@ -27,7 +27,7 @@ my_receive_response(void)
 
     if ((p_pkt = elproto_get_resp(&args_size)) == NULL)
     {
-        ELCLIENT_LOG("%s elproto resp error\n", __FUNCTION__);
+        ELCLIENT_LOG("%s: error detected in response\n", __FUNCTION__);
         return NULL;
     }
     
