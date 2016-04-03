@@ -1,0 +1,33 @@
+# Travis-CI Build 
+# see travis-ci.org for details
+
+language: c
+
+# Use the faster container-based infrastructure.
+sudo: false
+
+env:
+
+matrix:
+  include:
+    - compiler: gcc
+      os: linux
+    - compiler: clang
+      os: linux
+    - compiler: clang
+      os: osx
+
+before_install:
+
+script:
+
+addons:
+    #apt:
+    # List of whitelisted in travis packages
+    #   https://github.com/travis-ci/apt-package-whitelist/
+    # List of whitelisted in travis apt-sources:
+    #   https://github.com/travis-ci/apt-source-whitelist/
+    #sources:
+    #
+    #packages:
+    #  - clang-3.7
