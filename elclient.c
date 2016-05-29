@@ -19,7 +19,7 @@ elclient_register_cb(elclient_cb_id_t cb_id, elclient_cb_t p_cb)
 }
 
 
-static elproto_pkt_t * 
+static elproto_pkt_t *
 my_receive_response(void)
 {
     elproto_pkt_t * p_pkt;
@@ -30,7 +30,7 @@ my_receive_response(void)
         ELCLIENT_LOG("%s: error detected in response\n", __FUNCTION__);
         return NULL;
     }
-    
+
     if ((p_pkt->argc * sizeof(uint32_t)) != args_size)
     {
         fprintf(stderr, "%s invalid arg size=%d detected\n", __FUNCTION__, args_size);
@@ -45,7 +45,7 @@ my_receive_response(void)
 
         case CMD_RESP_CB:
             ELCLIENT_LOG("%s RESP CB\n", __FUNCTION__);
-            if ((p_pkt->value < ELCLIENT_CB_ID_NUMBER) && 
+            if ((p_pkt->value < ELCLIENT_CB_ID_NUMBER) &&
                 (elclient_cb_table[p_pkt->value] != NULL))
             {
                 elclient_cb_table[p_pkt->value](p_pkt, args_size);
@@ -69,7 +69,7 @@ int elclient_sync(void)
 
     // Get response...
     my_receive_response();
-    
+
     //get callback
     my_receive_response();
 
@@ -79,7 +79,7 @@ int elclient_sync(void)
 int elclient_rest_setup(const char * hostname, uint16_t port, uint8_t security)
 {
     elproto_pkt_t * p_pkt;
-    
+
     ELCLIENT_LOG("%s hostname=%s port=%d security=%d\n",__FUNCTION__, hostname, port, security);
 
     elproto_new_req(CMD_REST_SETUP, ELCLIENT_CB_ID_REST, 3);
@@ -116,7 +116,7 @@ int elclient_rest_request(const char * method, char * path, char * data)
 
     elproto_push_arg(path, strlen(path));
     elproto_req_finish();
-    
+
     my_receive_response();
 
     return 0;

@@ -8,7 +8,11 @@
 #include <sys/stat.h>
 #include "slip.h"
 #include "serialtype.h"
+#if defined(BUILD_FOR_ARM)
+#include "serial_arm.h"
+#else
 #include "serial_unix.h"
+#endif
 #include "elclient.h"
 #include "elproto.h"
 
@@ -38,24 +42,9 @@ typedef struct __attribute__((packed))
 } elproto_arg_t;
 
 
-serial_if_cfg_t unix_serial_if_cfg = 
-{
-    .chardev  = "/dev/ttyUSB0",
-    .baudrate = 115200,
-    .flowctrl = 0,
-    .parity   = 0,
-    .stopbits = 1,
-    .bytesize = 1
-};
+serial_if_t     * p_serial_if;
+serial_if_cfg_t * p_serial_if_cfg;
 
-serial_if_t unix_serial_if =
-{
-    .p_cfg       = &unix_serial_if_cfg,
-    .init        = serial_unix_init,
-    .putb        = serial_unix_putb,
-    .getb        = serial_unix_getb,
-    .bytes_available = serial_unix_bytes_available,
-};
 
 void my_elclient_common_cb(void * p_param, uint16_t args_size)
 {
@@ -77,7 +66,7 @@ void my_elclient_common_cb(void * p_param, uint16_t args_size)
     {
         uint16_t j;
         fprintf(stderr, " | arg[%d] len=%d dump=", i, p_arg_x->len);
-    
+
         for (j = 0; j < p_arg_x->len; j++)
         {
             fprintf(stderr, "%02X ", p_arg_x->data[j]);
@@ -98,15 +87,16 @@ void my_elclient_common_cb(void * p_param, uint16_t args_size)
     fprintf(stderr, "\n");
 }
 
+#if defined(BUILD_FOR_UNIX)
 static int
 my_load_config(void)
 {
     int f = -1;
     char param[1024];
     char value[1024];
-    
+
     fprintf(stderr, "Reading config file...\n");
-     
+
     if ((f = open(elclient_conf_file, O_RDONLY)) <= 0)
     {
         perror("Cannot open conf file");
@@ -127,7 +117,7 @@ my_load_config(void)
 
         memset(param, 0, sizeof(param));
         memset(value, 0, sizeof(value));
-        
+
         do
         {
             retval = read(f, &param[i], 1);
@@ -146,7 +136,7 @@ my_load_config(void)
             }
         } while(param[i++] != '=');
 
-        
+
         //Remove '='
         param[i - 1] = '\0';
 
@@ -168,7 +158,7 @@ my_load_config(void)
                 return -1;
             }
         } while(value[i++] != '\n');
-        
+
         //Remove '\n'
         value[i - 1] = '\0';
 
@@ -179,8 +169,8 @@ my_load_config(void)
         // +1 because we also copy \0
         if (strcmp(elclient_config_param_chardev, param) == 0)
         {
-            unix_serial_if_cfg.chardev = (char *)malloc(strlen(value) + 1);
-            memcpy(unix_serial_if_cfg.chardev, value, strlen(value) + 1);
+            p_serial_if_cfg->chardev = (char *)malloc(strlen(value) + 1);
+            memcpy(p_serial_if_cfg->chardev, value, strlen(value) + 1);
         }
         else if (strcmp(elclient_config_param_hostname, param) == 0)
         {
@@ -213,7 +203,7 @@ my_load_config(void)
     close(f);
     return -1;
 }
-
+#endif /* #if defined(BUILD_FOR_UNIX) */
 
 int main(void)
 {
@@ -221,11 +211,20 @@ int main(void)
     elclient_register_cb(ELCLIENT_CB_ID_COMMON, my_elclient_common_cb);
     elclient_register_cb(ELCLIENT_CB_ID_REST,   my_elclient_common_cb);
 
+#if defined(BUILD_FOR_ARM)
+    p_serial_if     = &arm_serial_if;
+    p_serial_if_cfg = &arm_serial_if_cfg;
+#else
+    p_serial_if     = &unix_serial_if;
+    p_serial_if_cfg = &unix_serial_if_cfg;
+
     if (my_load_config() != 0)
     {
         fprintf(stderr, "Cannot load config\n");
         return -1;
     }
+#endif
+
 
     fprintf(stderr, "elclient config:\n"
                     "  chardev = '%s'\n"
@@ -234,7 +233,7 @@ int main(void)
                     "  port    = '%d'\n"
                     "  sec     = '%d'\n"
                     "  updrate = '%d'\n",
-            unix_serial_if_cfg.chardev,
+            p_serial_if_cfg->chardev,
             elclient_config.hostname,
             elclient_config.base_path,
             elclient_config.port,
@@ -242,12 +241,12 @@ int main(void)
             elclient_config.update_rate_s);
 
 
-    if (slip_init(&unix_serial_if) < 0)
+    if (slip_init(p_serial_if) < 0)
     {
         fprintf(stderr, "slip init failed\n");
         return -1;
     }
-    
+
 
     if (elclient_sync())
     {
@@ -260,9 +259,9 @@ int main(void)
         fprintf(stderr, "elclient rest setup failed\n");
         return -1;
     }
-   
-    srand(time(NULL)); 
-    
+
+    srand(time(NULL));
+
     for (;;)
     {
         int rand_variance = (rand() & 0x0F) - 8;

@@ -4,8 +4,12 @@
 #include <stdio.h>
 
 
+#if defined(BUILD_FOR_UNIX)
 //#define ELPROTO_LOG(...) fprintf(stderr, __VA_ARGS__)
 #define ELPROTO_LOG(...)
+#else
+#define ELPROTO_LOG(...)
+#endif
 
 static uint16_t elproto_crc;
 // TODO: set adequate size...
@@ -35,7 +39,7 @@ static void my_crc16_reset(void)
 }
 
 
-void 
+void
 elproto_new_req(uint16_t cmd, uint32_t value, uint16_t argc)
 {
     ELPROTO_LOG("%s cmd=0x%02X\n", __FUNCTION__, cmd);
@@ -45,13 +49,13 @@ elproto_new_req(uint16_t cmd, uint32_t value, uint16_t argc)
     my_crc16_reset();
 
     // TODO: big/little endian??
-    slip_tx_frame((uint8_t *)&cmd, 2); 
+    slip_tx_frame((uint8_t *)&cmd, 2);
     my_crc16_update((uint8_t *)&cmd, 2);
 
-    slip_tx_frame((uint8_t *)&argc, 2); 
+    slip_tx_frame((uint8_t *)&argc, 2);
     my_crc16_update((uint8_t *)&argc, 2);
-    
-    slip_tx_frame((uint8_t *)&value, 4); 
+
+    slip_tx_frame((uint8_t *)&value, 4);
     my_crc16_update((uint8_t *)&value, 4);
 }
 

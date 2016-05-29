@@ -5,7 +5,7 @@
 #include <stdbool.h>
 
 
-typedef struct 
+typedef struct
 {
     char      * chardev;
     int32_t     baudrate;
@@ -15,7 +15,7 @@ typedef struct
     uint8_t     flowctrl;
 } serial_if_cfg_t;
 
-typedef struct 
+typedef struct
 {
     serial_if_cfg_t * p_cfg;
     int               (*init) (serial_if_cfg_t * p_cfg);

@@ -8,10 +8,23 @@ PROJECT_NAME = el_client_demo
 #################################################################################
 # Note: VPATH is a standard Makefile variable,
 # specifying a list of directories that make should search.
-VPATH = .
-
+VPATH         = .
 CFLAGS        = -Wall -Werror -c -std=gnu99
 BUILD_OBJ_DIR = build
+
+ifdef BUILD_FOR_ARM
+    VPATH  += port/ARM
+    CFLAGS += -DBUILD_FOR_ARM -fno-common -fno-builtin
+	LFLAGS += -Wl,-lc_nano -Wl,--start-group -Wl,--end-group -static
+    CC      = arm-none-eabi-gcc
+else
+    VPATH += port/unix
+    CFLAGS += -DBUILD_FOR_UNIX
+endif
+
+INC_DIR_LIST = $(foreach dir,$(VPATH),$(addprefix -I,$(dir)))
+
+CFLAGS += $(INC_DIR_LIST)
 
 #################################################################################
 #
