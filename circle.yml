@@ -3,6 +3,7 @@ dependencies:
         - sudo apt-get install build-essential clang
 test:
     pre:
-        - make all
+        - make all CC=gcc
+        - make all CC=clang
 #    override:
 #        - make check
