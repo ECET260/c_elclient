@@ -1,9 +1,10 @@
 dependencies:
     pre:
-        - sudo apt-get install build-essential clang
+        - sudo apt-get install build-essential clang gcc-arm-none-eabi
 test:
     pre:
-        - make all CC=gcc
-        - make all CC=clang
+        - make clean all CC=gcc 
+        - make clean all CC=clang
+        - make clean all BUILD_FOR_ARM=1
 #    override:
 #        - make check
