@@ -10,7 +10,7 @@ PROJECT_NAME = el_client_demo
 # specifying a list of directories that make should search.
 VPATH = .
 
-CFLAGS        = -Wall -Werror -c -std=c99
+CFLAGS        = -Wall -Werror -c -std=gnu99
 BUILD_OBJ_DIR = build
 
 #################################################################################
