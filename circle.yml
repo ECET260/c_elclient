@@ -2,7 +2,7 @@ dependencies:
     pre:
         - sudo add-apt-repository -y ppa:team-gcc-arm-embedded/ppa
         - sudo apt-get update
-        - sudo apt-get install build-essential clang gcc-arm-none-eabi
+        - sudo apt-get install build-essential clang gcc-arm-embedded
 test:
     pre:
         - make clean all CC=gcc 
