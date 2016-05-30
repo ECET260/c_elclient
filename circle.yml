@@ -1,6 +1,4 @@
 general:
-  artifacts:
-    - "artifacts" # relative to the build directory
 
 machine:
     environment:
@@ -9,7 +7,7 @@ machine:
 dependencies:
 
     cache_directories:
-      - ../gcc-arm-none-eabi-5_3-2016q1
+      - ~/gcc-arm-none-eabi-5_3-2016q1
 
     pre:
         # Get compiler using apt-get
@@ -22,13 +20,13 @@ dependencies:
 test:
     pre:
         - make clean all CC=gcc 
-        - mkdir -p artifacts/gcc_x86
-        - mv build/el_client_demo.bin artifacts/gcc_x86/
+        - mkdir -p ${CIRCLE_ARTIFACTS}/gcc_x86
+        - mv build/el_client_demo.bin ${CIRCLE_ARTIFACTS}/gcc_x86/
         - make clean all CC=clang
-        - mkdir -p artifacts/clang_x86
-        - mv build/el_client_demo.bin artifacts/clang_x86/
+        - mkdir -p ${CIRCLE_ARTIFACTS}/clang_x86
+        - mv build/el_client_demo.bin ${CIRCLE_ARTIFACTS}/clang_x86/
         - make clean all BUILD_FOR_ARM=1
-        - mkdir -p artifacts/gcc_arm
-        - mv build/el_client_demo.bin artifacts/gcc_arm/
+        - mkdir -p ${CIRCLE_ARTIFACTS}/gcc_arm
+        - mv build/el_client_demo.bin ${CIRCLE_ARTIFACTS}/gcc_arm/
 #    override:
 #        - make check
