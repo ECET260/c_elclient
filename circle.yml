@@ -9,7 +9,7 @@ machine:
 dependencies:
 
     cache_directories:
-      - gcc-arm-none-eabi-5_3-2016q1
+      - ../gcc-arm-none-eabi-5_3-2016q1
 
     pre:
         # Get compiler using apt-get
@@ -21,7 +21,6 @@ dependencies:
         - bash ./install_gcc_arm.sh
 test:
     pre:
-        - echo ${PATH}
         - make clean all CC=gcc 
         - mkdir -p artifacts/gcc_x86
         - mv build/el_client_demo.bin artifacts/gcc_x86/
