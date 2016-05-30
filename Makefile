@@ -15,7 +15,7 @@ BUILD_OBJ_DIR = build
 ifdef BUILD_FOR_ARM
     VPATH  += port/ARM
     CFLAGS += -DBUILD_FOR_ARM -fno-common -fno-builtin
-	LFLAGS += -Wl,-lc_nano -Wl,--start-group -Wl,--end-group -static
+    LFLAGS += -Wl,-lc_nano  -static --specs=nosys.specs
     CC      = arm-none-eabi-gcc
 else
     VPATH += port/unix
