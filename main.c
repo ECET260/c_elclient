@@ -277,7 +277,7 @@ int main(void)
             fprintf(stderr, "elclient rest request failed \n");
             return -1;
         }
-#if defined(BUILD_FOR_ARM)
+#if defined(BUILD_FOR_UNIX)
         // Min update interval is 15 seconds for thingspeak.com
         sleep(elclient_config.update_rate_s);
 #else
