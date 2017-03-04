@@ -1,6 +1,8 @@
 #include <stdlib.h>
 #include "slip.h"
+#include "stm32f4xx_hal.h"
 
+extern UART_HandleTypeDef huart2;
 struct 
 {
     serial_if_t * p_serial;
@@ -33,12 +35,16 @@ slip_tx_frame(uint8_t * p_data, uint32_t len)
         switch (p_data[len])
         {
             case SLIP_END:
-                slip_ctxt.p_serial->putb(SLIP_ESC);
+                //slip_ctxt.p_serial->putb(SLIP_ESC);
+            	txbyte = SLIP_ESC;
+            	HAL_UART_Transmit(&huart2, &txbyte, 1, 200);
                 txbyte = SLIP_ESC_END;
                 break;
 
             case SLIP_ESC:
-                slip_ctxt.p_serial->putb(SLIP_ESC);
+                //slip_ctxt.p_serial->putb(SLIP_ESC);
+            	txbyte = SLIP_ESC;
+            	HAL_UART_Transmit(&huart2, &txbyte, 1, 200);
                 txbyte = SLIP_ESC_ESC;
                 break;
 
@@ -47,7 +53,8 @@ slip_tx_frame(uint8_t * p_data, uint32_t len)
                 break;
         }
     
-        slip_ctxt.p_serial->putb(txbyte);
+        //slip_ctxt.p_serial->putb(txbyte);
+        HAL_UART_Transmit(&huart2, &txbyte, 1, 200);
     }
 
 
@@ -58,7 +65,9 @@ void
 slip_tx_end(void)
 {
     // send the frame end
-    slip_ctxt.p_serial->putb(SLIP_END);
+    //slip_ctxt.p_serial->putb(SLIP_END);
+	uint8_t  txbyte=SLIP_END;
+    HAL_UART_Transmit(&huart2, &txbyte, 1, 200);
 }
 
 uint32_t 
@@ -70,8 +79,8 @@ slip_rx_frame(uint8_t * p_data)
     //TODO: add a timeout if nothing is received.
     do
     {
-        rxbyte = slip_ctxt.p_serial->getb();
-
+        //rxbyte = slip_ctxt.p_serial->getb();
+        HAL_UART_Receive(&huart2, &rxbyte, 1, 200);
         switch (rxbyte)
         {
             case SLIP_END:
@@ -79,7 +88,8 @@ slip_rx_frame(uint8_t * p_data)
                 break;
 
             case SLIP_ESC:
-                rxbyte = slip_ctxt.p_serial->getb();
+                //rxbyte = slip_ctxt.p_serial->getb();
+            	HAL_UART_Receive(&huart2, &rxbyte, 1, 200);
 
                 switch (rxbyte)
                 {

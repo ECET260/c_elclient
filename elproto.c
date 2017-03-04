@@ -4,12 +4,9 @@
 #include <stdio.h>
 
 
-#if defined(BUILD_FOR_UNIX)
-//#define ELPROTO_LOG(...) fprintf(stderr, __VA_ARGS__)
+
 #define ELPROTO_LOG(...)
-#else
-#define ELPROTO_LOG(...)
-#endif
+
 
 static uint16_t elproto_crc;
 // TODO: set adequate size...
